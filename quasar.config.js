@@ -86,6 +86,8 @@ module.exports = configure(function (/* ctx */) {
           },
         ],
       ],
+
+      env: require('dotenv').config().parsed,
     },
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#devServer
