@@ -2,14 +2,10 @@
 import { defineComponent } from 'vue';
 
 export default defineComponent({
-  name: 'MainLayout',
+  name: 'DesktopIndexPage',
 });
 </script>
 
 <template>
-  <q-layout>
-    <q-page-container>
-      <router-view />
-    </q-page-container>
-  </q-layout>
+  <q-page class="items-center justify-evenly row">Desktop page</q-page>
 </template>
