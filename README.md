@@ -2,6 +2,10 @@
 
 A Quasar Project
 
+## Demo
+
+[youtube-web-quasar.surge.sh](https://youtube-web-quasar.surge.sh)
+
 ## Install the dependencies
 
 ```bash
