@@ -39,11 +39,7 @@ export type MoviePopularRequest = {
 export type MoviePopularResponse = {
   data: Movie[];
   meta: {
-    pagination: {
-      total: number;
-      currentPage: number;
-      lastPage: number;
-    };
+    pagination: Pagination;
   };
 };
 
@@ -61,6 +57,12 @@ export type MovieSearchResponse = {
       lastPage: number;
     };
   };
+};
+
+export type Pagination = {
+  total: number;
+  currentPage: number;
+  lastPage: number;
 };
 
 export type ResponseError = {
