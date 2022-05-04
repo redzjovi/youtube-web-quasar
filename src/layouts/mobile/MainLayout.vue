@@ -1,17 +1,43 @@
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, onMounted, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 export default defineComponent({
   name: 'MobileMainLayout',
   setup() {
+    const $route = useRoute();
+    const $router = useRouter();
+
     const search = ref('');
     const searchDialog = ref(false);
     const accountDialog = ref(false);
+
+    const searchSubmit = () => {
+      if (!search.value) {
+        return;
+      }
+      $router.push({
+        name: 'mobile-results',
+        query: { search_query: search.value },
+      });
+    };
+
+    onMounted(() => {
+      search.value = String($route.query.search_query ?? '');
+    });
+
+    watch(
+      () => $route.query.search_query,
+      (newSearchQuery) => {
+        search.value = String(newSearchQuery ?? '');
+      }
+    );
 
     return {
       search,
       searchDialog,
       accountDialog,
+      searchSubmit,
     };
   },
 });
@@ -26,32 +52,34 @@ export default defineComponent({
         <q-btn flat icon="search" round @click="searchDialog = true" />
         <q-dialog full-width position="top" v-model="searchDialog">
           <q-card>
-            <q-toolbar>
-              <q-btn
-                flat
-                icon="arrow_back"
-                round
-                @click="searchDialog = false"
-              />
-              <q-input
-                class="col"
-                dense
-                placeholder="Search YouTube"
-                v-model="search"
-              >
-                <template v-slot:after>
-                  <q-btn
-                    flat
-                    icon="close"
-                    round
-                    v-if="search"
-                    @click="search = ''"
-                  />
-                  <q-btn flat icon="search" round />
-                  <q-btn flat icon="mic" round v-if="!search" />
-                </template>
-              </q-input>
-            </q-toolbar>
+            <q-form @submit="searchSubmit">
+              <q-toolbar>
+                <q-btn
+                  flat
+                  icon="arrow_back"
+                  round
+                  @click="searchDialog = false"
+                />
+                <q-input
+                  class="col"
+                  dense
+                  placeholder="Search YouTube"
+                  v-model="search"
+                >
+                  <template v-slot:after>
+                    <q-btn
+                      flat
+                      icon="close"
+                      round
+                      v-if="search"
+                      @click="search = ''"
+                    />
+                    <q-btn flat icon="search" round />
+                    <q-btn flat icon="mic" round v-if="!search" />
+                  </template>
+                </q-input>
+              </q-toolbar>
+            </q-form>
           </q-card>
         </q-dialog>
         <q-btn

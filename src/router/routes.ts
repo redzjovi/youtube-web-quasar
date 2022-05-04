@@ -55,6 +55,17 @@ const routes: RouteRecordRaw[] = [
       },
     ],
   },
+  {
+    path: '/mobile/results',
+    component: () => import('layouts/mobile/ResultsLayout.vue'),
+    children: [
+      {
+        path: '',
+        name: 'mobile-results',
+        component: () => import('pages/mobile/ResultsPage.vue'),
+      },
+    ],
+  },
 
   // Always leave this as last one,
   // but you can also remove it

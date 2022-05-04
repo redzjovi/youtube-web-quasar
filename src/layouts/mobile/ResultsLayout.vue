@@ -3,7 +3,7 @@ import { defineComponent, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 export default defineComponent({
-  name: 'MobileMovieDetailLayout',
+  name: 'MobileResultsLayout',
   setup() {
     const $route = useRoute();
     const $router = useRouter();
@@ -11,7 +11,6 @@ export default defineComponent({
     const search = ref('');
     const searchDialog = ref(false);
     const moreDialog = ref(false);
-    const accountDialog = ref(false);
 
     const searchSubmit = () => {
       if (!search.value) {
@@ -38,7 +37,6 @@ export default defineComponent({
       search,
       searchDialog,
       moreDialog,
-      accountDialog,
       searchSubmit,
     };
   },
@@ -47,16 +45,22 @@ export default defineComponent({
 
 <template>
   <q-layout view="lHh lpr lFf">
-    <q-header bordered class="bg-black text-white" reveal>
+    <q-header bordered class="bg-white text-black" reveal>
       <q-toolbar>
-        <q-btn
-          class="text-white"
-          flat
-          label="YouTube"
-          :to="{ name: 'mobile' }"
-        />
-        <q-space />
-        <q-btn flat icon="search" round @click="searchDialog = true" />
+        <q-btn flat icon="o_smart_display" :to="{ name: 'mobile' }" />
+        <q-input
+          class="col"
+          dense
+          filled
+          placeholder="Search YouTube"
+          readonly
+          v-model="search"
+          @click="searchDialog = true"
+        >
+          <template v-slot:append>
+            <q-icon name="o_tune" />
+          </template>
+        </q-input>
         <q-dialog full-width position="top" v-model="searchDialog">
           <q-card>
             <q-form @submit="searchSubmit">
@@ -89,6 +93,7 @@ export default defineComponent({
             </q-form>
           </q-card>
         </q-dialog>
+        <q-btn flat icon="mic" round />
         <q-btn flat icon="more_vert" round @click="moreDialog = true" />
         <q-dialog full-width v-model="moreDialog">
           <q-card square>
@@ -129,14 +134,15 @@ export default defineComponent({
             </q-item>
           </q-card>
         </q-dialog>
-        <q-btn
-          color="primary"
-          icon="o_account_circle"
-          label="SIGN IN"
-          outline
-        />
       </q-toolbar>
     </q-header>
+    <q-footer bordered class="bg-white text-black">
+      <q-tabs dense no-caps>
+        <q-tab icon="house" label="Home" name="home" />
+        <q-tab icon="o_slideshow" label="Shorts" name="shorts" />
+        <q-tab icon="o_video_library" label="Library" name="library" />
+      </q-tabs>
+    </q-footer>
     <q-page-container>
       <router-view />
     </q-page-container>
