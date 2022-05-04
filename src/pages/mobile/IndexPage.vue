@@ -43,22 +43,36 @@ export default defineComponent({
         v-for="movie in moviePopular.$state.data"
         :key="movie.id"
       >
-        <q-img
-          fit="contain"
-          :alt="movie.title"
-          :ratio="16 / 9"
-          :src="movie.poster"
-        />
+        <router-link
+          :to="{ name: 'mobile-movie-detail', params: { id: movie.id } }"
+        >
+          <q-img
+            fit="contain"
+            :alt="movie.title"
+            :ratio="16 / 9"
+            :src="movie.poster"
+          />
+        </router-link>
         <q-list>
           <q-item>
             <q-item-section>
-              <q-item-label>{{ movie.title }}</q-item-label>
-              <q-item-label caption>
-                {{ movie.totalView }} views •
-                {{
-                  date.formatDate(Date.parse(movie.releaseDate), 'MMM DD, YYYY')
-                }}
-              </q-item-label>
+              <router-link
+                :to="{
+                  name: 'mobile-movie-detail',
+                  params: { id: movie.id },
+                }"
+              >
+                <q-item-label>{{ movie.title }}</q-item-label>
+                <q-item-label caption>
+                  {{ movie.totalView }} views •
+                  {{
+                    date.formatDate(
+                      Date.parse(movie.releaseDate),
+                      'MMM DD, YYYY'
+                    )
+                  }}
+                </q-item-label>
+              </router-link>
             </q-item-section>
             <q-item-section side top>
               <q-btn
@@ -72,8 +86,8 @@ export default defineComponent({
           </q-item>
         </q-list>
       </q-card>
+      <div v-intersection="loadMore"></div>
     </div>
-    <div v-intersection="loadMore"></div>
     <div class="text-center" v-if="moviePopular.$state.loadMoreLoading">
       <q-spinner size="md" />
     </div>
