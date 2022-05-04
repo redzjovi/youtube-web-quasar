@@ -1,7 +1,8 @@
 <script lang="ts">
 import useMovieDetail from 'src/composables/useMovieDetail';
+import useMovieDetailRecommendation from 'src/composables/useMovieDetailRecommendation';
 import { date } from 'quasar';
-import { defineComponent, onMounted } from 'vue';
+import { defineComponent, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
 export default defineComponent({
@@ -10,14 +11,43 @@ export default defineComponent({
     const $route = useRoute();
 
     const movieDetail = useMovieDetail();
+    const movieDetailRecommendation = useMovieDetailRecommendation();
+
+    const movieDetailRecommendationLoadMore = (
+      entry: IntersectionObserverEntry
+    ) => {
+      if (
+        movieDetailRecommendation.$state.page >=
+        movieDetailRecommendation.$state.lastPage
+      ) {
+        return;
+      }
+      if (entry.isIntersecting) {
+        movieDetailRecommendation.loadMore(String($route.params.id));
+      }
+    };
 
     onMounted(() => {
-      movieDetail.get($route.params.id.toString());
+      movieDetail.get(String($route.params.id));
+      movieDetailRecommendation.get(String($route.params.id));
     });
+
+    watch(
+      () => $route.params.id,
+      async (newId) => {
+        if (newId) {
+          movieDetail.get(String(newId));
+          movieDetailRecommendation.stateReset();
+          movieDetailRecommendation.get(String(newId));
+        }
+      }
+    );
 
     return {
       date,
       movieDetail,
+      movieDetailRecommendation,
+      movieDetailRecommendationLoadMore,
     };
   },
 });
@@ -66,6 +96,40 @@ export default defineComponent({
             <q-separator />
           </q-list>
         </template>
+      </div>
+      <div class="col-md-3">
+        <q-list>
+          <q-item
+            v-for="movie in movieDetailRecommendation.$state.data"
+            :key="movie.id"
+            :to="{ name: 'desktop-movie-detail', params: { id: movie.id } }"
+          >
+            <q-item-section class="col-md-5">
+              <q-img
+                fit="contain"
+                :alt="movie.title"
+                :ratio="16 / 9"
+                :src="movie.poster"
+              />
+            </q-item-section>
+            <q-item-section class="col-md-7" top>
+              <q-item-label>{{ movie.title }}</q-item-label>
+              <q-item-label caption>
+                {{ movie.totalView }} views •
+                {{
+                  date.formatDate(Date.parse(movie.releaseDate), 'MMM DD, YYYY')
+                }}
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+          <div v-intersection="movieDetailRecommendationLoadMore"></div>
+        </q-list>
+        <div
+          class="text-center"
+          v-if="movieDetailRecommendation.$state.loadMoreLoading"
+        >
+          <q-spinner size="md" />
+        </div>
       </div>
     </div>
   </q-page>

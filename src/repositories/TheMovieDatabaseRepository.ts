@@ -1,6 +1,8 @@
 import { api } from 'src/boot/axios';
 import {
   Movie as MovieRepositoryMovie,
+  MovieDetailRecommendationRequest as MovieRepositoryMovieDetailRecommendationRequest,
+  MovieDetailRecommendationResponse as MovieRepositoryMovieDetailRecommendationResponse,
   MovieDetailRequest as MovieRepositoryMovieDetailRequest,
   MovieDetailResponse as MovieRepositoryMovieDetailResponse,
   MoviePopularRequest as MovieRepositoryMoviePopularRequest,
@@ -50,6 +52,19 @@ type MovieDetail = {
   videos: {
     results: Video[];
   };
+};
+
+type MovieDetailRecommendationRequest = {
+  api_key: string;
+  language: string;
+  page: number;
+};
+
+type MovieDetailRecommendationResponse = {
+  page: number;
+  results: MovieListResult[];
+  total_results: number;
+  total_pages: number;
 };
 
 type MovieDetailRequest = {
@@ -192,6 +207,47 @@ export default class TheMovieDatabaseRepository implements MovieRepository {
           const movieDetailResponse = e.response.data as ResponseError;
           reject({
             message: movieDetailResponse.status_message,
+          } as MovieRepositoryResponseError);
+        });
+    });
+  }
+  movieDetailRecommendation(
+    request: MovieRepositoryMovieDetailRecommendationRequest
+  ): Promise<MovieRepositoryMovieDetailRecommendationResponse> {
+    return new Promise((resolve, reject) => {
+      api
+        .get(
+          'https://api.themoviedb.org/3/movie/' +
+            request.id +
+            '/recommendations',
+          {
+            params: {
+              api_key: process.env.THE_MOVIE_DATABASE_API_KEY,
+              page: request.page,
+            } as MovieDetailRecommendationRequest,
+          }
+        )
+        .then((r) => {
+          const movieDetailRecommendationResponse =
+            r.data as MovieDetailRecommendationResponse;
+          resolve({
+            data: movieDetailRecommendationResponse.results.map((result) => {
+              return movieListResultToMovie(result);
+            }),
+            meta: {
+              pagination: {
+                total: movieDetailRecommendationResponse.total_results,
+                currentPage: movieDetailRecommendationResponse.page,
+                lastPage: movieDetailRecommendationResponse.total_pages,
+              },
+            },
+          });
+        })
+        .catch((e) => {
+          const movieDetailRecommendationResponse = e.response
+            .data as ResponseError;
+          reject({
+            message: movieDetailRecommendationResponse.status_message,
           } as MovieRepositoryResponseError);
         });
     });
