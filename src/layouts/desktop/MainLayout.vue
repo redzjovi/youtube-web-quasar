@@ -1,6 +1,7 @@
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
 import LeftDrawerList from 'layouts/desktop/_LeftDrawerList.vue';
+import { defineComponent, onMounted, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 export default defineComponent({
   name: 'DesktopMainLayout',
@@ -8,14 +9,39 @@ export default defineComponent({
     LeftDrawerList,
   },
   setup() {
+    const $route = useRoute();
+    const $router = useRouter();
+
     const leftDrawer = ref(false);
     const searchPrependIcon = ref(false);
     const search = ref('');
+
+    const searchSubmit = () => {
+      if (!search.value) {
+        return;
+      }
+      $router.push({
+        name: 'desktop-results',
+        query: { search_query: search.value },
+      });
+    };
+
+    onMounted(() => {
+      search.value = String($route.query.search_query ?? '');
+    });
+
+    watch(
+      () => $route.query.search_query,
+      (newSearchQuery) => {
+        search.value = String(newSearchQuery ?? '');
+      }
+    );
 
     return {
       leftDrawer,
       searchPrependIcon,
       search,
+      searchSubmit,
     };
   },
 });
@@ -29,7 +55,7 @@ export default defineComponent({
         <q-btn flat label="YouTube" :to="{ name: 'desktop' }" />
         <q-space />
         <div class="col-md-4 col-sm-6">
-          <q-form class="row">
+          <q-form class="row" @submit="searchSubmit">
             <q-input
               class="col"
               clear-icon="close"

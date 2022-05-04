@@ -8,6 +8,8 @@ import {
   MoviePopularRequest as MovieRepositoryMoviePopularRequest,
   MoviePopularResponse as MovieRepositoryMoviePopularResponse,
   MovieRepository,
+  MovieSearchRequest as MovieRepositoryMovieSearchRequest,
+  MovieSearchResponse as MovieRepositoryMovieSearchResponse,
   ResponseError as MovieRepositoryResponseError,
   Video as MovieRepositoryVideo,
 } from 'src/repositories/MovieRepository';
@@ -118,6 +120,24 @@ type ProductionCountry = {
 type ResponseError = {
   status_message: string;
   status_code: number;
+};
+
+type SearchMovieRequest = {
+  api_key: string;
+  language: null | string;
+  query: string;
+  page: null | number;
+  include_adult: null | boolean;
+  region: null | string;
+  year: null | number;
+  primary_release_year: null | number;
+};
+
+type SearchMovieResponse = {
+  page: number;
+  results: MovieListResult[];
+  total_results: number;
+  total_pages: number;
 };
 
 type SpokenLanguage = {
@@ -282,6 +302,41 @@ export default class TheMovieDatabaseRepository implements MovieRepository {
           const moviePopularResponse = e.response.data as ResponseError;
           reject({
             message: moviePopularResponse.status_message,
+          } as MovieRepositoryResponseError);
+        });
+    });
+  }
+  movieSearch(
+    request: MovieRepositoryMovieSearchRequest
+  ): Promise<MovieRepositoryMovieSearchResponse> {
+    return new Promise((resolve, reject) => {
+      api
+        .get('https://api.themoviedb.org/3/search/movie', {
+          params: {
+            api_key: process.env.THE_MOVIE_DATABASE_API_KEY,
+            query: request.query,
+            page: request.page,
+          } as SearchMovieRequest,
+        })
+        .then((r) => {
+          const searchMovieResponse = r.data as SearchMovieResponse;
+          resolve({
+            data: searchMovieResponse.results.map((result) => {
+              return movieListResultToMovie(result);
+            }),
+            meta: {
+              pagination: {
+                total: searchMovieResponse.total_results,
+                currentPage: searchMovieResponse.page,
+                lastPage: searchMovieResponse.total_pages,
+              },
+            },
+          });
+        })
+        .catch((e) => {
+          const searchMovieResponse = e.response.data as ResponseError;
+          reject({
+            message: searchMovieResponse.status_message,
           } as MovieRepositoryResponseError);
         });
     });

@@ -47,6 +47,22 @@ export type MoviePopularResponse = {
   };
 };
 
+export type MovieSearchRequest = {
+  query: string;
+  page: number;
+};
+
+export type MovieSearchResponse = {
+  data: Movie[];
+  meta: {
+    pagination: {
+      total: number;
+      currentPage: number;
+      lastPage: number;
+    };
+  };
+};
+
 export type ResponseError = {
   message: string;
 };
@@ -64,4 +80,5 @@ export interface MovieRepository {
     request: MovieDetailRecommendationRequest
   ): Promise<MovieDetailRecommendationResponse>;
   moviePopular(request: MoviePopularRequest): Promise<MoviePopularResponse>;
+  movieSearch(request: MovieSearchRequest): Promise<MovieSearchResponse>;
 }

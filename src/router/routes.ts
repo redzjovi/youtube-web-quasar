@@ -15,6 +15,11 @@ const routes: RouteRecordRaw[] = [
         name: 'desktop',
         component: () => import('pages/desktop/IndexPage.vue'),
       },
+      {
+        path: '/results',
+        name: 'desktop-results',
+        component: () => import('pages/desktop/ResultsPage.vue'),
+      },
     ],
   },
   {
