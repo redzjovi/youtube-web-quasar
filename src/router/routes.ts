@@ -18,6 +18,17 @@ const routes: RouteRecordRaw[] = [
     ],
   },
   {
+    path: '/desktop/movie/:id',
+    component: () => import('layouts/desktop/MovieDetailLayout.vue'),
+    children: [
+      {
+        path: '',
+        name: 'desktop-movie-detail',
+        component: () => import('pages/desktop/MovieDetailPage.vue'),
+      },
+    ],
+  },
+  {
     path: '/mobile',
     component: () => import('layouts/mobile/MainLayout.vue'),
     children: [
